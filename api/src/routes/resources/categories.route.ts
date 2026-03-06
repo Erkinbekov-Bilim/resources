@@ -5,12 +5,21 @@ import type {
   ICategoryWithoutId,
 } from '../../types/resources/resources.types.js';
 import mysqlDb from '../../config/mysqlDb.js';
-import type { QueryResult, ResultSetHeader } from 'mysql2';
+import type { Connection, QueryResult, ResultSetHeader } from 'mysql2/promise';
 
 const categoriesRouter: Router = express.Router();
 
-categoriesRouter.get('/', async (req: Request, res: Response) => {
-  return res.json('Categories');
+categoriesRouter.get('/', async (_req: Request, res: Response) => {
+  try {
+    const connection: Connection = await mysqlDb.getConnection();
+    const [result] = await connection.query('SELECT * FROM categories');
+    const categories = result as ICategory[];
+
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+    console.error(error);
+  }
 });
 
 categoriesRouter.post('/', async (req: Request, res: Response) => {
