@@ -33,6 +33,10 @@ categoriesRouter.get('/:id', async (req: Request, res: Response) => {
     );
     const category = result as ICategory[];
 
+    if (category.length === 0) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+
     res.json(...category);
   } catch (error) {
     console.error(error);
