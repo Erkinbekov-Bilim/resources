@@ -15,10 +15,10 @@ categoriesRouter.get('/', async (_req: Request, res: Response) => {
     const [result] = await connection.query('SELECT * FROM categories');
     const categories = result as ICategory[];
 
-    res.json(categories);
+    return res.json(categories);
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
     console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -37,10 +37,10 @@ categoriesRouter.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Category not found' });
     }
 
-    res.json(...category);
+    return res.json(...category);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -77,7 +77,7 @@ categoriesRouter.put('/:id', async (req: Request, res: Response) => {
     return res.json(...category);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -115,7 +115,7 @@ categoriesRouter.post('/', async (req: Request, res: Response) => {
     return res.json(...category);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -125,10 +125,10 @@ categoriesRouter.delete('/:id', async (req: Request, res: Response) => {
   try {
     const connection = await mysqlDb.getConnection();
     await connection.query('DELETE FROM categories WHERE id = ?', [id]);
-    res.json({ message: 'Category deleted successfully' });
+    return res.json({ message: 'Category deleted successfully' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
