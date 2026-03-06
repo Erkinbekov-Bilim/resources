@@ -22,5 +22,12 @@ export interface IInventory {
   name: string;
   description: string | null;
   image: string | null;
-  date_from: string;
+}
+
+export interface IInventoryWithoutId {
+  category_id: number;
+  location_id: number;
+  name: string;
+  description: string | null;
+  image: string | null;
 }
