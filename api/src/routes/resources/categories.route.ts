@@ -22,6 +22,61 @@ categoriesRouter.get('/', async (_req: Request, res: Response) => {
   }
 });
 
+categoriesRouter.get('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const connection = await mysqlDb.getConnection();
+    const [result] = await connection.query(
+      'SELECT * FROM categories WHERE id = ?',
+      [id],
+    );
+    const category = result as ICategory[];
+
+    res.json(...category);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+categoriesRouter.put('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const data: ICategory = req.body;
+
+  if (!data.name || data.name.trim().length === 0) {
+    return res.status(400).json({
+      error: 'name is required',
+    });
+  }
+
+  try {
+    const connection = await mysqlDb.getConnection();
+    const [result] = await connection.query(
+      'UPDATE categories SET name = ?, description = ? WHERE id = ?',
+      [data.name, data.description, id],
+    );
+
+    const resultHeader: any = result as { insertId: number };
+
+    if (resultHeader.affectedRows === 0) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+
+    const [updatedCategory] = await connection.query(
+      'SELECT * FROM categories WHERE id = ?',
+      [id],
+    );
+
+    const category = updatedCategory as ICategory[];
+
+    return res.json(...category);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 categoriesRouter.post('/', async (req: Request, res: Response) => {
   const data: ICategory = req.body;
 
@@ -54,6 +109,19 @@ categoriesRouter.post('/', async (req: Request, res: Response) => {
     const category = createdCategory as ICategory[];
 
     return res.json(...category);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+categoriesRouter.delete('/:id', async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const connection = await mysqlDb.getConnection();
+    await connection.query('DELETE FROM categories WHERE id = ?', [id]);
+    res.json({ message: 'Category deleted successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
